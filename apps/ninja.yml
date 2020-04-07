@@ -13,9 +13,9 @@
     - name: 'Set Known Facts'
       set_fact:
         pgrole: 'ninja'
-        intport: '80'
-        extport: '2489'
-        image: 'mprasil/bitwarden'
+        intport: '443'
+        extport: '9999'
+        image: 'invoiceninja/invoiceninja'
 
     # CORE (MANDATORY) ############################################################
     - name: 'Including cron job'
@@ -25,10 +25,12 @@
     - name: 'Adding Traefik'
       set_fact:
         pg_labels:
+          traefik.frontend.auth.forward.address: '{{gauth}}'
+          traefik.protocol: 'https'
           traefik.enable: 'true'
-          traefik.backend: '{{pgrole}}'
-          traefik.port: '80'
-          traefik.frontend.rule: 'Host:bit.{{domain.stdout}},{{pgrole}}.{{domain.stdout}},{{tldset}}'
+          traefik.https.port: '443'
+          traefik.https.frontend.entryPoints: 'https'
+          traefik.https.frontend.rule: 'Host:{{pgrole}}.{{domain.stdout}}{{tldset}}{{cname}}'
 
     - name: 'Setting PG Volumes'
       set_fact:
@@ -42,18 +44,21 @@
           PUID: '1000'
           PGID: '1000'
 
-    # MAIN DEPLOYMENT #############################################################
-    - name: 'Deploying {{pgrole}}'
+    - name: Create and start nextcloud container
       docker_container:
-        name: '{{pgrole}}'
-        image: '{{image}}'
+        name: nextcloud
+        image: 'linuxserver/nextcloud'
         pull: yes
+        published_ports:
+          - '127.0.0.0.1:4645:443'
+        env:
+          PUID: '1000'
+          PGID: '1000'
         volumes: '{{pg_volumes}}'
-        env: '{{pg_env}}'
-        restart_policy: unless-stopped
         networks:
           - name: plexguide
             aliases:
-              - '{{pgrole}}'
+              - next
+        restart_policy: unless-stopped
         state: started
         labels: '{{pg_labels}}'
