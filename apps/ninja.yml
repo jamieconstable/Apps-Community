@@ -44,13 +44,13 @@
           PUID: '1000'
           PGID: '1000'
 
-    - name: Create and start nextcloud container
+    - name: Create and start ninja container
       docker_container:
-        name: nextcloud
-        image: 'linuxserver/nextcloud'
+        name: ninja
+        image: 'invoiceninja/invoiceninja'
         pull: yes
         published_ports:
-          - '127.0.0.0.1:4645:443'
+          - '127.0.0.0.1:9999:443'
         env:
           PUID: '1000'
           PGID: '1000'
