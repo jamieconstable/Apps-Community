@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 # Title:      PGBlitz (Reference Title File)
@@ -35,8 +34,13 @@
     - name: 'Setting PG Volumes'
       set_fact:
         pg_volumes:
+          - '/etc/localtime:/etc/localtime:ro'
           - '/opt/appdata/{{pgrole}}/data:/data'
-          - '/opt/appdata/{{pgrole}}/database:/database'
+          - '/opt/appdata/{{pgrole}}/db:/var/lib/mysql'
+          - '/opt/appdata/{{pgrole}}/storage:/var/www/app/storage'
+          - '/opt/appdata/{{pgrole}}/logo:/var/www/app/public/logo'
+          - '/opt/appdata/{{pgrole}}/public:/var/www/app/public'
+
 
     - name: 'Setting PG ENV'
       set_fact:
